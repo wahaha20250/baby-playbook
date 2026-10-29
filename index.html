@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>芽芽启蒙 · 15月龄亲子双语原生发音伴读手册</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#FFFDF9">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons for smooth baby-friendly SVG icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      background-color: #FAF8F5;
+    }
+
+    /* Custom smooth scrolling and scrollbar hiding */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Audio wave animation */
+    @keyframes waveBounce {
+      0%, 100% { height: 4px; }
+      50% { height: 18px; }
+    }
+    .animate-wave-1 { animation: waveBounce 0.8s ease-in-out infinite; }
+    .animate-wave-2 { animation: waveBounce 0.8s ease-in-out infinite 0.2s; }
+    .animate-wave-3 { animation: waveBounce 0.8s ease-in-out infinite 0.4s; }
+    .animate-wave-4 { animation: waveBounce 0.8s ease-in-out infinite 0.15s; }
+
+    /* Liaison badge highlight */
+    .liaison-link {
+      border-bottom: 2px dashed #F59E0B;
+      color: #92400E;
+    }
+    .weak-sound {
+      color: #9CA3AF;
+      text-decoration: line-through;
+      text-decoration-thickness: 1.5px;
+    }
+    .flap-sound {
+      background-color: #FEF3C7;
+      color: #B45309;
+      border-radius: 3px;
+      padding: 0 2px;
+    }
+  </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between selection:bg-amber-100">
+
+  <!-- Main Container constrained for Mobile App Feel -->
+  <div class="w-full max-w-lg mx-auto flex-1 flex flex-col bg-[#FAF8F5] pb-28 shadow-xl min-h-screen relative">
+    
+    <!-- App Sticky Header -->
+    <header class="sticky top-0 z-30 bg-[#FAF8F5]/90 backdrop-blur-md px-4 pt-4 pb-3 border-b border-amber-100/60">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <div class="w-9 h-9 rounded-2xl bg-amber-400/20 text-amber-600 flex items-center justify-center font-bold text-lg shadow-inner">
+            <i class="ph-bold ph-baby"></i>
+          </div>
+          <div>
+            <h1 class="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-1.5">
+              芽芽双语伴读
+              <span class="text-[10px] font-semibold tracking-normal px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800">15M+ 精准连读</span>
+            </h1>
+            <p class="text-[11px] text-slate-400 font-medium">母语级原生韵律 · 连读/弱读/TPR动作拆解</p>
+          </div>
+        </div>
+
+        <!-- Voice Selector trigger button -->
+        <button onclick="toggleVoiceModal()" class="p-2 rounded-xl bg-white border border-slate-200/80 text-slate-600 hover:text-amber-600 active:scale-95 transition shadow-sm flex items-center space-x-1 text-xs">
+          <i class="ph-fill ph-waveform text-amber-500"></i>
+          <span id="currentVoiceLabel" class="max-w-[80px] truncate text-[11px] font-medium">美音推荐</span>
+        </button>
+      </div>
+
+      <!-- Search & Quick Speed Switcher -->
+      <div class="mt-3 flex items-center gap-2">
+        <div class="relative flex-1">
+          <i class="ph-bold ph-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-sm"></i>
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="搜索英文、中文或动作 (如: Spot, 勺子, 跺脚)" 
+            class="w-full pl-8 pr-8 py-1.5 bg-white rounded-xl text-xs border border-slate-200/80 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400 transition"
+            oninput="handleSearch(this.value)"
+          >
+          <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-2.5 top-2 text-slate-400 hover:text-slate-600">
+            <i class="ph-bold ph-x text-xs"></i>
+          </button>
+        </div>
+
+        <!-- Global Speed Toggle Pill -->
+        <div class="flex items-center bg-slate-100 p-0.5 rounded-xl text-[11px] font-semibold text-slate-600 border border-slate-200/50">
+          <button onclick="setPlaySpeed(0.75)" id="speedBtn-075" class="px-2 py-1 rounded-lg transition text-slate-500">0.75x</button>
+          <button onclick="setPlaySpeed(0.85)" id="speedBtn-085" class="px-2 py-1 rounded-lg transition bg-white text-amber-700 shadow-sm font-bold">0.85x</button>
+          <button onclick="setPlaySpeed(1.0)" id="speedBtn-100" class="px-2 py-1 rounded-lg transition text-slate-500">1.0x</button>
+        </div>
+      </div>
+
+      <!-- Categories Scrollable Chips -->
+      <div class="flex items-center space-x-1.5 overflow-x-auto no-scrollbar pt-2.5">
+        <button onclick="switchCategory('all')" class="cat-pill active px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-slate-900 text-white shadow-sm transition">
+          全部场景
+        </button>
+        <button onclick="switchCategory('book')" class="cat-pill px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-white text-slate-600 border border-slate-200/80 hover:border-amber-300 transition">
+          📖 经典绘本
+        </button>
+        <button onclick="switchCategory('song')" class="cat-pill px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-white text-slate-600 border border-slate-200/80 hover:border-amber-300 transition">
+          🎵 律动童谣
+        </button>
+        <button onclick="switchCategory('meal')" class="cat-pill px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-white text-slate-600 border border-slate-200/80 hover:border-amber-300 transition">
+          🥣 自主进食
+        </button>
+        <button onclick="switchCategory('daily')" class="cat-pill px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-white text-slate-600 border border-slate-200/80 hover:border-amber-300 transition">
+          🛁 换洗与身体
+        </button>
+        <button onclick="switchCategory('outdoor')" class="cat-pill px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-white text-slate-600 border border-slate-200/80 hover:border-amber-300 transition">
+          🌳 户外探索
+        </button>
+      </div>
+    </header>
+
+    <!-- Pronunciation Guide Banner (Quick Legend) -->
+    <div class="px-4 pt-3 pb-1">
+      <div class="bg-amber-50/70 border border-amber-200/70 rounded-2xl p-2.5 flex items-center justify-between text-[11px] text-amber-900">
+        <div class="flex items-center space-x-2">
+          <i class="ph-fill ph-info text-amber-500 text-base"></i>
+          <div>
+            <span class="font-bold">原生连音图例：</span>
+            <span class="liaison-link font-semibold">连音‿</span>
+            <span class="weak-sound font-semibold px-0.5">击穿/弱读(h)</span>
+            <span class="flap-sound font-semibold">轻弹舌[d]</span>
+          </div>
+        </div>
+        <span class="text-amber-700/80 font-medium">点击单词逐字跟读</span>
+      </div>
+    </div>
+
+    <!-- Active Speaking Status Bar (Floating when active) -->
+    <div id="playingBar" class="hidden mx-4 my-2 p-2.5 rounded-2xl bg-slate-900 text-white flex items-center justify-between shadow-lg transition-all animate-pulse duration-300">
+      <div class="flex items-center space-x-2.5 overflow-hidden">
+        <div class="flex items-end space-x-0.5 h-4 w-4 text-amber-400">
+          <span class="w-1 bg-amber-400 rounded-full animate-wave-1"></span>
+          <span class="w-1 bg-amber-400 rounded-full animate-wave-2"></span>
+          <span class="w-1 bg-amber-400 rounded-full animate-wave-3"></span>
+          <span class="w-1 bg-amber-400 rounded-full animate-wave-4"></span>
+        </div>
+        <div class="truncate">
+          <span id="playingText" class="text-xs font-bold text-amber-300 block truncate">Playing...</span>
+          <span id="playingModeLabel" class="text-[10px] text-slate-400 block">标准美音原声伴读</span>
+        </div>
+      </div>
+      <button onclick="stopSpeech()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition">
+        <i class="ph-bold ph-stop text-sm"></i>
+      </button>
+    </div>
+
+    <!-- Main Content Feed Cards -->
+    <main id="cardList" class="px-4 py-3 space-y-4">
+      <!-- Card items will be populated by JavaScript -->
+    </main>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden flex-col items-center justify-center py-16 text-slate-400">
+      <i class="ph-light ph-magnifying-glass text-4xl mb-2 text-slate-300"></i>
+      <p class="text-xs">未找到匹配的词句或互动卡片</p>
+    </div>
+
+  </div>
+
+  <!-- Bottom Interactive Floating Bar for Parent Practice Mode -->
+  <div class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-4 py-2.5 max-w-lg mx-auto shadow-2xl">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <button id="repeatModeBtn" onclick="toggleRepeatMode()" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 flex items-center space-x-1 hover:border-amber-300 transition">
+          <i class="ph-bold ph-repeat text-amber-600"></i>
+          <span>连播3次: <strong id="repeatStatus" class="text-slate-800">关</strong></span>
+        </button>
+        <button id="syllableBreakdownBtn" onclick="toggleBreakdownMode()" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 flex items-center space-x-1 hover:border-amber-300 transition">
+          <i class="ph-bold ph-text-aa text-indigo-500"></i>
+          <span>逐词精读: <strong id="breakdownStatus" class="text-slate-800">关</strong></span>
+        </button>
+      </div>
+
+      <button onclick="playRandomHighFrequency()" class="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-500 active:scale-95 text-slate-900 font-bold text-xs flex items-center space-x-1 shadow-sm transition">
+        <i class="ph-fill ph-shuffle"></i>
+        <span>随机一句</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Voice Engine Modal -->
+  <div id="voiceModal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl transform transition-transform border border-slate-100 max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center space-x-2">
+          <i class="ph-bold ph-faders text-amber-500 text-lg"></i>
+          <h3 class="font-bold text-slate-800 text-sm">发音引擎与原生音色设置</h3>
+        </div>
+        <button onclick="toggleVoiceModal()" class="p-1 rounded-full text-slate-400 hover:text-slate-600">
+          <i class="ph-bold ph-x text-base"></i>
+        </button>
+      </div>
+
+      <div class="py-3 overflow-y-auto no-scrollbar space-y-3 flex-1 text-xs">
+        <p class="text-slate-500 leading-relaxed text-[11px]">
+          本程序优先调用当前手机系统内嵌的**高保真自然母语发音库**（如 iOS Samantha/Siri 或 Chrome Natural Neural 神经语音）。连读、弱读与吞音效果取决于所选音色。
+        </p>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1.5">挑选原声声音 (Native Voices):</label>
+          <div id="voiceList" class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+            <!-- Populated via JS -->
+            <div class="text-slate-400 text-center py-4">检测设备发音引擎中...</div>
+          </div>
+        </div>
+
+        <!-- Tone and Pitch adjustments -->
+        <div class="pt-2 border-t border-slate-100 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-medium text-slate-700">伴读语调 (Pitch: <span id="pitchValLabel">1.05</span>)</span>
+            <input type="range" min="0.8" max="1.3" step="0.05" value="1.05" id="pitchSlider" oninput="updatePitch(this.value)" class="w-32 accent-amber-500">
+          </div>
+          <p class="text-[10px] text-slate-400">略微提高语调（1.05x~1.1x）更贴近与15个月幼儿对话时的“父母语（Parentese）”。</p>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 flex justify-end">
+        <button onclick="testCurrentVoice()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold text-xs mr-2 transition">
+          测试试听
+        </button>
+        <button onclick="toggleVoiceModal()" class="px-5 py-2 bg-amber-400 hover:bg-amber-500 text-slate-900 rounded-xl font-bold text-xs shadow-sm transition">
+          确定保存
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // -------------------------------------------------------------
+    // 1. High-Fidelity Toddler Phrases Database with Liaison Guides
+    // -------------------------------------------------------------
+    const phrasesDatabase = [
+      // CATEGORY: BOOK (经典绘本)
+      {
+        id: "b1",
+        category: "book",
+        bookTitle: "Where's Spot? (小玻在哪里)",
+        en: "Is he under the bed?",
+        ipa: "/ɪz hiː ˈʌndər ðə bɛd/",
+        liaisonDisplay: `Is‿he <span class="liaison-link">under‿the</span> bed?`,
+        pronounceTips: "连读技巧：Is 和 he 连读，'h'轻微击穿读成 /ɪ-zi/；under 和 the 连贯过渡，不要在 under 后停顿。",
+        chineseSound: "连读感知：伊-兹-昂得-德-贝得？",
+        cn: "他在床底下吗？",
+        action: "抓住宝宝小肉手，一起去抠开硬纸板床底下的遮挡机关，眼神充满好奇。",
+        tags: ["翻翻互动", "方位认知", "反问句调"]
+      },
+      {
+        id: "b2",
+        category: "book",
+        bookTitle: "Where's Spot? (小玻在哪里)",
+        en: "No! There's an alligator!",
+        ipa: "/noʊ! ðɛrz ən ˈælɪɡeɪtər/",
+        liaisonDisplay: `No! There's‿an alligator!`,
+        pronounceTips: "连读技巧：There's 和 an 自然相连读成 /ðɛr-zən/，结尾 alligator 语调拔高做出惊讶声。",
+        chineseSound: "连读感知：诺！得儿-怎-爱丽给特！",
+        cn: "没有！里面是一只大鳄鱼！",
+        action: "翻开瞬间做出夸张惊讶表情，身体微微后撤，双手比划鳄鱼大嘴巴咬合，逗得宝宝咯咯笑。",
+        tags: ["情绪互动", "拟声神态", "大惊小怪"]
+      },
+      {
+        id: "b3",
+        category: "book",
+        bookTitle: "Dear Zoo (亲爱的动物园)",
+        en: "He was too big! I sent him back.",
+        ipa: "/hiː wəz tuː bɪɡ! aɪ sɛnt ɪm bæk/",
+        liaisonDisplay: `He was too big! I <span class="liaison-link">sen(t)‿<span class="weak-sound">h</span>im</span> back.`,
+        pronounceTips: "击穿连读：sent 结尾 t 弱化，him 的 h 吞音击穿，读成 /sɛn-tɪm/ 或 /sɛn-ɪm/，地道母语流利度关键！",
+        chineseSound: "连读感知：Hi was too big! 哎-森-恩姆-百克。",
+        cn: "它太大了！我把它寄回去了。",
+        action: "两手张到最大比出‘大象的大’，然后做双手把包裹推走的动作。",
+        tags: ["大小反义", "动作推拉", "击穿音"]
+      },
+      {
+        id: "b4",
+        category: "book",
+        bookTitle: "Dear Zoo (亲爱的动物园)",
+        en: "He was perfect! I kept him.",
+        ipa: "/hiː wəz ˈpɜːrfɪkt! aɪ kɛpt ɪm/",
+        liaisonDisplay: `He was perfect! I <span class="liaison-link">kep(t)‿<span class="weak-sound">h</span>im</span>.`,
+        pronounceTips: "吞音技巧：kept him 中的 /t/ 轻轻抵住齿龈不爆破，直接滑向 /ɪm/ 读成 /kɛp-tɪm/。",
+        chineseSound: "连读感知：Hi was perfect! 哎-开普-提姆。",
+        cn: "它太完美了！我收留了它。",
+        action: "翻开箱子看到小狗，亲一下绘本上的小狗，然后轻轻抱抱身边的宝宝。",
+        tags: ["情感投射", "拥抱安抚"]
+      },
+      {
+        id: "b5",
+        category: "book",
+        bookTitle: "From Head to Toe (从头到脚)",
+        en: "I am a penguin and I turn my head.",
+        ipa: "/aɪ æm ə ˈpɛŋɡwɪn ænd aɪ tɜːrn maɪ hɛd/",
+        liaisonDisplay: `I <span class="liaison-link">am‿a</span> penguin <span class="liaison-link">an(d)‿I</span> turn my head.`,
+        pronounceTips: "元音连读：am 与 a 紧密相接 /æ-mə/；and I 吞掉 d 读成 /æn-aɪ/。",
+        chineseSound: "连读感知：哎-爱玛-喷归恩，安-奈-特恩-买-海得。",
+        cn: "我是企鹅，我会转转头。",
+        action: "夸张地向左转头、向右转头，带宝宝的小手摸摸她自己的脖子转动。",
+        tags: ["TPR肢体", "身体部位", "艾瑞卡尔"]
+      },
+      {
+        id: "b6",
+        category: "book",
+        bookTitle: "From Head to Toe (从头到脚)",
+        en: "Can you do it? I can do it!",
+        ipa: "/kæn juː duː ɪt? aɪ kæn duː ɪt/",
+        liaisonDisplay: `Can you <span class="liaison-link">do‿it</span>? I can <span class="liaison-link">do‿it</span>!`,
+        pronounceTips: "连读技巧：do 与 it 之间产生微小的滑音 /w/，顺畅读成 /duː-wɪt/。",
+        chineseSound: "连读感知：坎-优-度-伊特？爱-坎-度-伊特！",
+        cn: "你能做到吗？我能做到！",
+        action: "大人用双拳拍拍自己的胸膛，鼓励宝宝也举起小拳头模仿，建立自信回应。",
+        tags: ["双向问答", "动作肯定", "高频金句"]
+      },
+
+      // CATEGORY: SONG (律动童谣)
+      {
+        id: "s1",
+        category: "song",
+        bookTitle: "童谣 · Open Shut Them",
+        en: "Open, shut them. Give a little clap.",
+        ipa: "/ˈoʊpən, ʃʌt ðɛm. ɡɪv ə ˈlɪtl klæp/",
+        liaisonDisplay: `Open, shut <span class="weak-sound">th</span>em. <span class="liaison-link">Give‿a</span> <span class="flap-sound">little</span> clap.`,
+        pronounceTips: "日常弱读：shut them 口语中通常弱读成 /ʃʌt-əm/；Give a 连读 /ɡɪ-və/；little 发轻快美式闪音 [lɪ-dl]。",
+        chineseSound: "连读感知：欧喷，夏特姆。给-娃-力豆-克莱普。",
+        cn: "张开，握紧。轻轻拍拍小手。",
+        action: "双手掌心向外彻底大张开，再迅速攥紧小拳头，随后带宝宝有节奏拍手三下。",
+        tags: ["手部精细动作", "反义词具象化", "拍手互动"]
+      },
+      {
+        id: "s2",
+        category: "song",
+        bookTitle: "童谣 · Open Shut Them",
+        en: "Creep them, crawl them, right up to your chin.",
+        ipa: "/kriːp ðəm, krɔːl ðəm, raɪt ʌp tuː jɔːr tʃɪn/",
+        liaisonDisplay: `Creep them, crawl them, <span class="liaison-link">righ(t)‿up</span> to your chin.`,
+        pronounceTips: "连读技巧：right 遇元音 up，t 产生连音闪读成 /raɪ-dʌp/，轻快滑入。",
+        chineseSound: "连读感知：奎普-得姆，夸尔-得姆，赖-搭普-吐-优尔-亲。",
+        cn: "爬呀爬，爬呀爬，一直爬到小下巴。",
+        action: "大人两根手指像小虫子一样，从宝宝肉嘟嘟的脚掌沿着肚皮一路爬到小下巴，最后轻轻挠痒痒！",
+        tags: ["触觉游戏", "感官逗乐", "下巴认知"]
+      },
+      {
+        id: "s3",
+        category: "song",
+        bookTitle: "童谣 · Clap Your Hands",
+        en: "Clap your hands! Listen to the music.",
+        ipa: "/klæp jɔːr hændz! ˈlɪsn tuː ðə ˈmjuːzɪk/",
+        liaisonDisplay: `Clap your hands! <span class="liaison-link">Listen‿to</span> the music.`,
+        pronounceTips: "弱读要点：Clap your 中的 p 轻收；Listen 的 t 不发音，音节轻快连贯。",
+        chineseSound: "连读感知：克莱普-优尔-汉兹！利森-吐-德-谬贼克。",
+        cn: "拍拍手！听听欢快的音乐。",
+        action: "握住宝宝双手打节奏，身体左右欢快摇晃。",
+        tags: ["大运动", "听觉节奏", "音乐律动"]
+      },
+      {
+        id: "s4",
+        category: "song",
+        bookTitle: "童谣 · Clap Your Hands",
+        en: "Spin around! All fall down!",
+        ipa: "/spɪn əˈraʊnd! ɔːl fɔːl daʊn/",
+        liaisonDisplay: `<span class="liaison-link">Spin‿around</span>! All fall down!`,
+        pronounceTips: "连音技巧：Spin 的 n 与 around 的 a 紧密咬合：/spɪ-nə-raʊnd/。",
+        chineseSound: "连读感知：斯宾-呢-绕恩得！奥-佛-荡！",
+        cn: "转个圈！全部倒下！",
+        action: "抱起宝宝原地转一小圈，唱到 All fall down 时顺势一起跌倒软趴在爬行垫上，宝宝超爱这套动作。",
+        tags: ["前庭觉刺激", "核心平衡", "高潮笑点"]
+      },
+      {
+        id: "s5",
+        category: "song",
+        bookTitle: "童谣 · One Little Finger",
+        en: "Put it on your nose! Tap, tap, tap.",
+        ipa: "/pʊt ɪt ɑːn jɔːr noʊz! tæp tæp tæp/",
+        liaisonDisplay: `<span class="flap-sound">Pu(t)‿i(t)</span>‿on your nose! Tap, tap, tap.`,
+        pronounceTips: "双闪音连读：Put it on 在美音里连续两个 t 闪音化成 [d]，流畅听感：/pʊ-dɪ-dɑːn/。",
+        chineseSound: "连读感知：扑-滴-当-优尔-诺兹！太普太普太普。",
+        cn: "把小手指点在鼻子上！点，点，点。",
+        action: "大人伸出食指左右摆动，然后轻轻点在宝宝的小鼻尖上发拟声词‘哔-哔’。",
+        tags: ["食指指点", "五官指认", "精细控制"]
+      },
+
+      // CATEGORY: MEAL (日常自主进食)
+      {
+        id: "m1",
+        category: "meal",
+        bookTitle: "餐桌日常 · 进食姿势",
+        en: "Spoon in hand! Scoop it up.",
+        ipa: "/spuːn ɪn hænd! skuːp ɪt ʌp/",
+        liaisonDisplay: `<span class="liaison-link">Spoon‿in</span> hand! <span class="liaison-link">Scoop‿i(t)‿up</span>.`,
+        pronounceTips: "核心连读范例：Spoon in 连成 /spuː-nɪn/；Scoop it up 双连音紧凑读成 /skuː-pɪ-tʌp/！",
+        chineseSound: "连读感知：斯普-宁-汉得！斯库-比-搭普！",
+        cn: "勺子拿手里！把它舀起来。",
+        action: "把辅食勺塞入宝宝手心，大人手掌包住宝宝小手，在辅食碗边顺势往上一舀。",
+        tags: ["自主进食", "手部发力", "核心高频"]
+      },
+      {
+        id: "m2",
+        category: "meal",
+        bookTitle: "餐桌日常 · 饮水与吞咽",
+        en: "Take a sip of water. Good girl!",
+        ipa: "/teɪk ə sɪp əv ˈwɔːtər. ɡʊd ɡɜːrl/",
+        liaisonDisplay: `<span class="liaison-link">Take‿a</span> <span class="liaison-link">sip‿of</span> <span class="flap-sound">water</span>. Good girl!`,
+        pronounceTips: "日常高频连音：Take a 读 /teɪ-kə/；sip of 弱化读 /sɪ-pəv/；water 美音闪读 [wɔː-dər]。",
+        chineseSound: "连读感知：贴-卡-西-婆夫-握得。固得-歌儿！",
+        cn: "喝一小口水。真是好宝贝！",
+        action: "递上双耳敞口杯或吸管杯，耐心等她含住杯口喝一小口，立刻抚摸背部给予赞赏。",
+        tags: ["杯饮训练", "饮水习惯", "正向鼓励"]
+      },
+      {
+        id: "m3",
+        category: "meal",
+        bookTitle: "餐桌日常 · 口腔咀嚼进阶",
+        en: "Chew, chew, chew your food.",
+        ipa: "/tʃuː tʃuː tʃuː jɔːr fuːd/",
+        liaisonDisplay: `Chew, chew, <span class="liaison-link">chew‿your</span> food.`,
+        pronounceTips: "口型强调：Chew 双唇充分嘟起，做大口夸张的咀嚼示范，配合韵律。",
+        chineseSound: "连读感知：丘，丘，丘-优尔-负得。",
+        cn: "嚼呀，嚼呀，嚼碎食物。",
+        action: "大人放慢自己的下颌咀嚼动作，张大嘴左右咬合，引导正在吃固体软块的宝宝跟着动下巴。",
+        tags: ["咀嚼吞咽", "后牙床锻炼", "面部肌肉"]
+      },
+      {
+        id: "m4",
+        category: "meal",
+        bookTitle: "餐桌日常 · 离席归位",
+        en: "All done! Wipe your hands.",
+        ipa: "/ɔːl dʌn! waɪp jɔːr hændz/",
+        liaisonDisplay: `<span class="liaison-link">All‿done</span>! <span class="liaison-link">Wipe‿your</span> hands.`,
+        pronounceTips: "吞音与连音：Wipe your 中的 p 轻轻收住直接接 y 音 /waɪ-pjɔːr/。",
+        chineseSound: "连读感知：奥-当！歪-普-优尔-汉兹。",
+        cn: "吃饱饱啦！擦擦小肉手。",
+        action: "两手手心摊开做出‘全没有了’的信号，拿湿巾给宝宝依次擦拭十指手心。",
+        tags: ["边界感", "自理清洁", "餐毕信号"]
+      },
+
+      // CATEGORY: DAILY (身体与换洗自理)
+      {
+        id: "d1",
+        category: "daily",
+        bookTitle: "身体认知 · 换尿布/抚触",
+        en: "Tickle your tummy! Giggle, giggle.",
+        ipa: "/ˈtɪkl jɔːr ˈtʌmi! ˈɡɪɡl ˈɡɪɡl/",
+        liaisonDisplay: `<span class="liaison-link">Tickle‿your</span> tummy! Giggle, giggle.`,
+        pronounceTips: "轻声词汇：Tickle your 自然滑读；Giggle 发清脆的后舌根音。",
+        chineseSound: "连读感知：踢口-优尔-烫咪！给狗，给狗。",
+        cn: "挠挠小肚皮！咯咯笑起来。",
+        action: "换完尿裤提上拉拉裤时，两手在宝宝小圆肚子上轻轻弹跳抓痒，逗笑她。",
+        tags: ["抚触交流", "肚子认知", "欢笑亲子"]
+      },
+      {
+        id: "d2",
+        category: "daily",
+        bookTitle: "生活自理 · 穿衣服穿鞋",
+        en: "Push your foot through! Kick it in.",
+        ipa: "/pʊʃ jɔːr fʊt θruː! kɪk ɪt ɪn/",
+        liaisonDisplay: `Push your foot through! <span class="liaison-link">Kick‿i(t)‿in</span>.`,
+        pronounceTips: "连读三连击：Kick it in 极速连音，读成 /kɪ-kɪ-dɪn/！",
+        chineseSound: "连读感知：扑须-优尔-负特-斯路！踢-克-丁。",
+        cn: "把小脚蹬出来！踢进去。",
+        action: "帮宝宝套裤腿或小鞋子，把小脚丫从裤管口引出来时拍拍小脚底板。",
+        tags: ["穿衣配合", "大动作穿插", "自主自理"]
+      },
+      {
+        id: "d3",
+        category: "daily",
+        bookTitle: "洗浴场景 · 戏水玩耍",
+        en: "Splash the water! Wash, wash, wash.",
+        ipa: "/splæʃ ðə ˈwɔːtər! wɑːʃ wɑːʃ wɑːʃ/",
+        liaisonDisplay: `<span class="liaison-link">Splash‿the</span> <span class="flap-sound">water</span>! Wash, wash, wash.`,
+        pronounceTips: "水流拟声：Splash 音头轻快爆破；water 保持轻柔的美式 [d] 闪音。",
+        chineseSound: "连读感知：斯普莱须-德-握得！握须，握须，握须。",
+        cn: "拍拍洗澡水！洗一洗，洗一洗。",
+        action: "在澡盆里用手掌拍起轻微小水花，抓起小毛巾在宝宝胳膊上轻轻擦拭。",
+        tags: ["洗澡时光", "感官戏水", "动作复述"]
+      },
+
+      // CATEGORY: OUTDOOR (户外推车与探险)
+      {
+        id: "o1",
+        category: "outdoor",
+        bookTitle: "户外活动 · 球类因果",
+        en: "Roll the ball to Daddy! Ready, set, go!",
+        ipa: "/roʊl ðə bɔːl tuː ˈdædi! ˈrɛdi sɛt ɡoʊ/",
+        liaisonDisplay: `<span class="liaison-link">Roll‿the</span> ball to Daddy! Ready, set, go!`,
+        pronounceTips: "节奏爆发：Roll the 连贯呼出；Ready, set, go 故意拉长音等 2 秒再喊出 go！",
+        chineseSound: "连读感知：肉-德-波-吐-呆滴！瑞弟，塞特，够！",
+        cn: "把球滚给爸爸！预备，开始！",
+        action: "大人坐在草地地垫另一端张开腿，示意宝宝蹲下用手把软皮球往前推滚。",
+        tags: ["大运动", "双向给予", "因果互动"]
+      },
+      {
+        id: "o2",
+        category: "outdoor",
+        bookTitle: "户外观察 · 动物与大自然",
+        en: "Look at the dog! Woof, woof, woof.",
+        ipa: "/lʊk æt ðə dɔːɡ! wʊf wʊf wʊf/",
+        liaisonDisplay: `<span class="liaison-link">Look‿at</span> the dog! Woof, woof, woof.`,
+        pronounceTips: "核心高频句：Look at 必连读成 /lʊ-kæt/，不要停顿念成两个孤立词。",
+        chineseSound: "连读感知：路-开特-德-道格！屋夫，屋夫，屋夫。",
+        cn: "看那只小狗！汪汪汪。",
+        action: "手指指向远处的小狗，学小狗喘气吐舌头发声，鼓励宝宝指认和发出'汪'单音。",
+        tags: ["拟声词输入", "视觉追踪", "指物命名"]
+      },
+      {
+        id: "o3",
+        category: "outdoor",
+        bookTitle: "户外活动 · 行走与拥抱",
+        en: "Come to Mommy! Big hug!",
+        ipa: "/kʌm tuː ˈmɑːmi! bɪɡ hʌɡ/",
+        liaisonDisplay: `<span class="liaison-link">Come‿to</span> Mommy! <span class="liaison-link">Bi(g)‿hug</span>!`,
+        pronounceTips: "爆破弱化：Big 的 g 稍微停顿不完全释放，紧接 hug 读出力量感。",
+        chineseSound: "连读感知：抗姆-吐-妈咪！碧-哈格！",
+        cn: "快到妈妈这里来！大大拥抱一个！",
+        action: "大人蹲在前方两米处张开双臂，微笑着呼唤踉跄快步走过来的小宝贝，接个满怀。",
+        tags: ["行走耐力", "依恋安全感", "高频赞美"]
+      }
+    ];
+
+    // -------------------------------------------------------------
+    // 2. State & Speech Synthesis Engine Management
+    // -------------------------------------------------------------
+    let currentCategory = 'all';
+    let currentSearchTerm = '';
+    let currentSpeed = 0.85;
+    let currentPitch = 1.05;
+    let isRepeatMode = false;
+    let isBreakdownMode = false;
+    let availableVoices = [];
+    let selectedVoice = null;
+    let currentlySpeakingCardId = null;
+
+    // Initialize Speech Synthesis & Find Best Native English Voices
+    function initSpeechEngine() {
+      if (!('speechSynthesis' in window)) {
+        console.warn('当前浏览器不支持原生 Web Speech API');
+        return;
+      }
+
+      function populateVoiceList() {
+        const voices = window.speechSynthesis.getVoices();
+        if (!voices || voices.length === 0) return;
+
+        // Filter English voices
+        availableVoices = voices.filter(v => v.lang.startsWith('en'));
+
+        // Rank the best voices: look for "Natural", "Siri", "Samantha", "Google US English", "Karen", "Daniel"
+        const priorityRegex = /(natural|samantha|siri|google us|karen|daniel|zoe|ava|allison)/i;
+        availableVoices.sort((a, b) => {
+          const aPriority = priorityRegex.test(a.name) ? 1 : 0;
+          const bPriority = priorityRegex.test(b.name) ? 1 : 0;
+          return bPriority - aPriority;
+        });
+
+        if (!selectedVoice && availableVoices.length > 0) {
+          // Default to the highest ranked English voice
+          selectedVoice = availableVoices[0];
+          updateVoiceLabel();
+        }
+
+        renderVoiceModalList();
+      }
+
+      populateVoiceList();
+      if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = populateVoiceList;
+      }
+    }
+
+    function updateVoiceLabel() {
+      const label = document.getElementById('currentVoiceLabel');
+      if (selectedVoice && label) {
+        // Clean display name
+        let cleanName = selectedVoice.name.replace(/Microsoft|Google|Apple|Desktop|English/gi, '').trim();
+        cleanName = cleanName.split(' ')[0] || "美音原声";
+        label.innerText = cleanName;
+      }
+    }
+
+    function renderVoiceModalList() {
+      const container = document.getElementById('voiceList');
+      if (!container) return;
+
+      if (availableVoices.length === 0) {
+        container.innerHTML = `<div class="p-3 text-slate-400 text-center">正在加载设备原声语音库...</div>`;
+        return;
+      }
+
+      container.innerHTML = availableVoices.map((v, idx) => {
+        const isSelected = selectedVoice && selectedVoice.name === v.name;
+        const isHighQuality = /(natural|siri|samantha|google)/i.test(v.name);
+        return `
+          <div onclick="selectVoiceByIndex(${idx})" class="p-2 rounded-xl border flex items-center justify-between cursor-pointer transition ${isSelected ? 'bg-amber-50 border-amber-400 text-amber-900 font-semibold' : 'border-slate-100 bg-white hover:bg-slate-50 text-slate-700'}">
+            <div class="flex items-center space-x-2">
+              <i class="ph-fill ph-check-circle ${isSelected ? 'text-amber-500' : 'text-slate-200'}"></i>
+              <div>
+                <div class="text-xs">${v.name}</div>
+                <div class="text-[10px] text-slate-400">${v.lang} ${isHighQuality ? '· ⭐ 自然神经级' : ''}</div>
+              </div>
+            </div>
+            ${isSelected ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-200/60 text-amber-800">使用中</span>' : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectVoiceByIndex(idx) {
+      if (availableVoices[idx]) {
+        selectedVoice = availableVoices[idx];
+        updateVoiceLabel();
+        renderVoiceModalList();
+      }
+    }
+
+    function updatePitch(val) {
+      currentPitch = parseFloat(val);
+      document.getElementById('pitchValLabel').innerText = val;
+    }
+
+    function toggleVoiceModal() {
+      const modal = document.getElementById('voiceModal');
+      modal.classList.toggle('hidden');
+    }
+
+    function testCurrentVoice() {
+      playSpeechText("Scoop it up! Good girl.", "test-voice");
+    }
+
+    // -------------------------------------------------------------
+    // 3. Audio Playback Core (Normal, 3x Loop, Syllable Breakdown)
+    // -------------------------------------------------------------
+    function stopSpeech() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      hidePlayingIndicator();
+      currentlySpeakingCardId = null;
+    }
+
+    function showPlayingIndicator(text, modeLabel) {
+      const bar = document.getElementById('playingBar');
+      const textElem = document.getElementById('playingText');
+      const modeElem = document.getElementById('playingModeLabel');
+      textElem.innerText = text;
+      modeElem.innerText = modeLabel || "标准美式原声发音";
+      bar.classList.remove('hidden');
+    }
+
+    function hidePlayingIndicator() {
+      const bar = document.getElementById('playingBar');
+      bar.classList.add('hidden');
+    }
+
+    // Main speech playback function
+    function playSpeechText(text, cardId, customSpeed = null) {
+      if (!('speechSynthesis' in window)) {
+        alert("您的浏览器不支持语音朗读，推荐使用手机 Chrome 或 Safari 打开。");
+        return;
+      }
+
+      window.speechSynthesis.cancel(); // Stop any pending audio
+
+      currentlySpeakingCardId = cardId;
+      const speedToUse = customSpeed || currentSpeed;
+
+      if (isBreakdownMode) {
+        // Syllable/word slow breakdown mode
+        playWordByWord(text, cardId);
+        return;
+      }
+
+      let repeatCount = isRepeatMode ? 3 : 1;
+      let playedSoFar = 0;
+
+      function speakOnce() {
+        if (playedSoFar >= repeatCount) {
+          hidePlayingIndicator();
+          currentlySpeakingCardId = null;
+          return;
+        }
+
+        playedSoFar++;
+        const utterance = new SpeechSynthesisUtterance(text);
+        if (selectedVoice) {
+          utterance.voice = selectedVoice;
+        }
+        utterance.lang = 'en-US';
+        utterance.rate = speedToUse;
+        utterance.pitch = currentPitch;
+
+        const modeStr = isRepeatMode ? `循环跟读 (${playedSoFar}/${repeatCount}) · ${speedToUse}x` : `原生伴读 · ${speedToUse}x`;
+        showPlayingIndicator(text, modeStr);
+
+        utterance.onend = () => {
+          if (isRepeatMode && playedSoFar < repeatCount) {
+            setTimeout(speakOnce, 600); // 600ms natural breathing interval
+          } else {
+            hidePlayingIndicator();
+            currentlySpeakingCardId = null;
+          }
+        };
+
+        utterance.onerror = () => {
+          hidePlayingIndicator();
+          currentlySpeakingCardId = null;
+        };
+
+        window.speechSynthesis.speak(utterance);
+      }
+
+      speakOnce();
+    }
+
+    // Breakdown mode: Speak word-by-word with high punctuation clarity
+    function playWordByWord(fullText, cardId) {
+      const words = fullText.replace(/[!?,.]/g, '').split(/\s+/).filter(Boolean);
+      let idx = 0;
+
+      showPlayingIndicator(fullText, "逐词拆解跟读模式 (慢速清晰)");
+
+      function nextWord() {
+        if (idx >= words.length) {
+          hidePlayingIndicator();
+          currentlySpeakingCardId = null;
+          return;
+        }
+
+        const word = words[idx];
+        const utterance = new SpeechSynthesisUtterance(word);
+        if (selectedVoice) utterance.voice = selectedVoice;
+        utterance.lang = 'en-US';
+        utterance.rate = 0.7; // Very deliberate for hearing phonetics
+        utterance.pitch = currentPitch;
+
+        showPlayingIndicator(`“${word}” (${idx + 1}/${words.length})`, "逐词慢速拆解");
+
+        utterance.onend = () => {
+          idx++;
+          setTimeout(nextWord, 450); // Pause between words
+        };
+
+        utterance.onerror = () => {
+          hidePlayingIndicator();
+          currentlySpeakingCardId = null;
+        };
+
+        window.speechSynthesis.speak(utterance);
+      }
+
+      nextWord();
+    }
+
+    // Single word tap pronunciation
+    function playSingleWord(e, word) {
+      e.stopPropagation();
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const cleanWord = word.replace(/[!?,.":;()]/g, '');
+      const u = new SpeechSynthesisUtterance(cleanWord);
+      if (selectedVoice) u.voice = selectedVoice;
+      u.lang = 'en-US';
+      u.rate = 0.75;
+      u.pitch = currentPitch;
+      showPlayingIndicator(cleanWord, "单词独立清晰发音");
+      u.onend = () => hidePlayingIndicator();
+      window.speechSynthesis.speak(u);
+    }
+
+    // Play random high-frequency phrase for parent practice
+    function playRandomHighFrequency() {
+      const randomIndex = Math.floor(Math.random() * phrasesDatabase.length);
+      const item = phrasesDatabase[randomIndex];
+      // Switch category if needed or scroll to it
+      playSpeechText(item.en, item.id);
+      const cardElem = document.getElementById(`card-${item.id}`);
+      if (cardElem) {
+        cardElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        cardElem.classList.add('ring-2', 'ring-amber-400');
+        setTimeout(() => cardElem.classList.remove('ring-2', 'ring-amber-400'), 1500);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 4. UI Controls (Speed, Modes, Search, Categories)
+    // -------------------------------------------------------------
+    function setPlaySpeed(speed) {
+      currentSpeed = speed;
+      [0.75, 0.85, 1.0].forEach(s => {
+        const id = `speedBtn-${String(s).replace('.', '')}`;
+        const btn = document.getElementById(id);
+        if (btn) {
+          if (s === speed) {
+            btn.className = "px-2 py-1 rounded-lg transition bg-white text-amber-700 shadow-sm font-bold";
+          } else {
+            btn.className = "px-2 py-1 rounded-lg transition text-slate-500 hover:text-slate-800";
+          }
+        }
+      });
+    }
+
+    function toggleRepeatMode() {
+      isRepeatMode = !isRepeatMode;
+      const status = document.getElementById('repeatStatus');
+      const btn = document.getElementById('repeatModeBtn');
+      if (isRepeatMode) {
+        status.innerText = "开";
+        btn.classList.add('bg-amber-100', 'border-amber-400', 'text-amber-900');
+      } else {
+        status.innerText = "关";
+        btn.classList.remove('bg-amber-100', 'border-amber-400', 'text-amber-900');
+      }
+    }
+
+    function toggleBreakdownMode() {
+      isBreakdownMode = !isBreakdownMode;
+      const status = document.getElementById('breakdownStatus');
+      const btn = document.getElementById('syllableBreakdownBtn');
+      if (isBreakdownMode) {
+        status.innerText = "开";
+        btn.classList.add('bg-indigo-50', 'border-indigo-300', 'text-indigo-900');
+      } else {
+        status.innerText = "关";
+        btn.classList.remove('bg-indigo-50', 'border-indigo-300', 'text-indigo-900');
+      }
+    }
+
+    function switchCategory(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-pill').forEach(btn => {
+        btn.className = "cat-pill px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-white text-slate-600 border border-slate-200/80 hover:border-amber-300 transition";
+      });
+      event.target.className = "cat-pill active px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-slate-900 text-white shadow-sm transition";
+      renderCards();
+    }
+
+    function handleSearch(term) {
+      currentSearchTerm = term.trim().toLowerCase();
+      const clearBtn = document.getElementById('clearSearchBtn');
+      if (currentSearchTerm.length > 0) {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+      renderCards();
+    }
+
+    function clearSearch() {
+      const input = document.getElementById('searchInput');
+      input.value = '';
+      currentSearchTerm = '';
+      document.getElementById('clearSearchBtn').classList.add('hidden');
+      renderCards();
+    }
+
+    // Helper: Turn phrase into clickable words
+    function wrapClickableWords(sentence) {
+      const words = sentence.split(' ');
+      return words.map(w => `<span onclick="playSingleWord(event, '${w}')" class="hover:text-amber-600 hover:underline cursor-pointer transition active:opacity-60">${w}</span>`).join(' ');
+    }
+
+    // -------------------------------------------------------------
+    // 5. Render Feed Cards
+    // -------------------------------------------------------------
+    function renderCards() {
+      const container = document.getElementById('cardList');
+      const emptyState = document.getElementById('emptyState');
+
+      let filtered = phrasesDatabase.filter(item => {
+        const matchesCategory = (currentCategory === 'all') || (item.category === currentCategory);
+        if (!matchesCategory) return false;
+
+        if (!currentSearchTerm) return true;
+        return (
+          item.en.toLowerCase().includes(currentSearchTerm) ||
+          item.cn.toLowerCase().includes(currentSearchTerm) ||
+          item.bookTitle.toLowerCase().includes(currentSearchTerm) ||
+          item.action.toLowerCase().includes(currentSearchTerm) ||
+          item.pronounceTips.toLowerCase().includes(currentSearchTerm)
+        );
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      container.innerHTML = filtered.map(item => {
+        const clickableEnglish = wrapClickableWords(item.en);
+        
+        return `
+          <article id="card-${item.id}" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/70 hover:border-amber-300 transition-all flex flex-col justify-between">
+            
+            <!-- Top Book & Category Tag -->
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+              <span class="text-[11px] font-bold text-amber-900 bg-amber-50/80 px-2.5 py-0.5 rounded-full border border-amber-200/50">
+                ${item.bookTitle}
+              </span>
+              <div class="flex items-center space-x-1">
+                ${item.tags.map(t => `<span class="text-[10px] text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded">${t}</span>`).join('')}
+              </div>
+            </div>
+
+            <!-- English Text and Listen Play Trigger -->
+            <div class="pt-3 pb-2">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex-1">
+                  <div class="text-base font-bold text-slate-900 tracking-tight leading-snug">
+                    ${clickableEnglish}
+                  </div>
+                  <div class="text-[11px] font-mono text-slate-400 mt-0.5">
+                    ${item.ipa}
+                  </div>
+                </div>
+
+                <!-- Instant Audio Button -->
+                <button 
+                  onclick="playSpeechText('${item.en.replace(/'/g, "\\'")}', '${item.id}')"
+                  class="w-10 h-10 rounded-2xl bg-amber-400/20 text-amber-700 hover:bg-amber-400 hover:text-slate-900 active:scale-90 flex-shrink-0 flex items-center justify-center transition shadow-sm"
+                  title="点击朗读 (0.85x 自然语速)"
+                >
+                  <i class="ph-fill ph-speaker-high text-lg"></i>
+                </button>
+              </div>
+
+              <!-- Native Liaison Visual Breakdown (Highlight Bar) -->
+              <div class="mt-2.5 p-2 bg-slate-50 rounded-xl border border-slate-100 text-xs">
+                <div class="flex items-center space-x-1.5 text-slate-700 font-semibold mb-1">
+                  <i class="ph-bold ph-link text-amber-500"></i>
+                  <span class="text-[11px] text-slate-500">原生连音切分：</span>
+                  <div class="text-xs font-semibold text-slate-900 tracking-wide font-sans">${item.liaisonDisplay}</div>
+                </div>
+                
+                <div class="text-[11px] text-amber-800/90 leading-tight">
+                  💡 <span class="font-medium">${item.pronounceTips}</span>
+                </div>
+
+                <div class="text-[10px] text-slate-400 mt-1 font-mono">
+                  ${item.chineseSound}
+                </div>
+              </div>
+
+              <!-- Chinese Meaning -->
+              <div class="mt-2 text-xs font-medium text-slate-600">
+                ${item.cn}
+              </div>
+            </div>
+
+            <!-- Parent TPR Action Cue (Interactive Blueprint) -->
+            <div class="mt-2.5 pt-2 border-t border-dashed border-slate-200/80 bg-orange-50/40 -mx-4 -mb-4 p-3 rounded-b-2xl">
+              <div class="flex items-start space-x-2 text-xs text-orange-950">
+                <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-orange-200/70 text-orange-800 text-[10px] font-extrabold flex-shrink-0 mt-0.5">
+                  玩
+                </span>
+                <p class="text-[11px] leading-relaxed text-orange-900/90">
+                  <strong class="font-semibold text-orange-950">亲子互动动作：</strong>${item.action}
+                </p>
+              </div>
+            </div>
+
+          </article>
+        `;
+      }).join('');
+    }
+
+    // -------------------------------------------------------------
+    // 6. Initialization
+    // -------------------------------------------------------------
+    window.addEventListener('DOMContentLoaded', () => {
+      initSpeechEngine();
+      renderCards();
+    });
+  </script>
+</body>
+</html>
